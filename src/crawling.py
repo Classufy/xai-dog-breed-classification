@@ -4,10 +4,12 @@ import time
 import urllib.request
 import base64
 
-keyword = 'west highland white terrier'
-breed = 'white_terrier'
-dir_name = f'./data/{breed}'
-chromedriver = '/Users/mingyu/dev/chromedriver' 
+### 이 부분만 수정
+keyword = 'west highland white terrier dog 사진' # 검색 키워드
+breed = 'white_terrier' # 디렉토리 이름에 들어갈 종 이름
+dir_name = f'./data/{breed}' # 디렉토리 경로 -> 미리 디렉토리 만들어야함
+chromedriver = '/Users/mingyu/dev/chromedriver' # 크롬 드라이버 경로
+###
 
 driver = webdriver.Chrome(chromedriver)
 driver.implicitly_wait(3)
