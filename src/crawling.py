@@ -1,9 +1,7 @@
 from selenium import webdriver 
 from selenium.webdriver.common.keys import Keys 
 import time 
-import os 
 import urllib.request
-import tqdm
 import base64
 
 keyword = 'west highland white terrier'
@@ -26,7 +24,7 @@ for i in range(15):
     time.sleep(0.1) 
     try: 
         driver.find_element_by_xpath('//*[@id="islmp"]/div/div/div/div[1]/div[4]/div[2]/input').click() 
-        for i in range(60): 
+        for _ in range(60): 
             elem.send_keys(Keys.PAGE_DOWN) 
             time.sleep(0.1) 
     except: pass
@@ -44,11 +42,15 @@ time.sleep(2)
 download = 0
 for i, url in enumerate(links):
     try:
-        img = base64.b64decode(url)
         urllib.request.urlretrieve(url, f"./{dir_name}/{keyword}_{i}.jpg")
         download += 1
-    except: 
-        pass
+    except:
+        try:
+            img = base64.b64decode(url)
+            urllib.request.urlretrieve(img, f"./{dir_name}/{keyword}_{i}.jpg")
+            download += 1
+        except: pass
+        
     # print(f'{url} : download\n')
 print(f'{keyword} 이미지 개수: {download}') 
 driver.close()
