@@ -5,25 +5,48 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import pandas as pd
+from typing import DefaultDict
+import csv
 
-image_dir = ['./data/cheetah_resize', './data/leopard_resize', './data/tiger_resize']
-image_target = ['cheetah', 'leopard', 'tiger']
+dir_path = './dog_data'
+image_dir = [f'{dir_path}/test_resize', f'{dir_path}/train_resize']
+
+dic = DefaultDict()
+image_target = set()
+
+data_path = './dog_data'
+with open(f'{data_path}/labels.csv', 'r') as data:
+    for filename, breed in csv.reader(data):
+        dic[f'{filename}.jpg'] = breed
+        image_target.add(breed)
+
+target = list(image_target)
+
+image_target = DefaultDict()
+
+for i, breed in enumerate(target):
+    image_target[breed] = i    
 
 X = []
 y = []
+dic
 
-for i, dir in enumerate(image_dir):
-    jpg_list = glob.glob(f'{dir}/*.jpg')
-    for img in jpg_list:
-        img = Image.open(img)
-        img = img.convert('RGB')
-        X.append(np.asarray(img))        
-    # data.append(jpg_list)
-    for _ in range(len(jpg_list)): y.append(i)
+jpg_list = glob.glob(f'{dir_path}/train_resized/*.jpg')
+for img in jpg_list:
+    fname = img.split('/')[-1]
+    img = Image.open(img)
+    img = img.convert('RGB')
+    X.append(np.asarray(img))
+    y.append(image_target[dic[fname]])
 
 X = np.array(X)
 y = np.array(y)
-len(X)
+
+X.shape
+y.shape
+
+df_y = pd.Series(y)
+df_y.value_counts() / len(df_y)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, random_state=1, test_size=0.2, stratify=y)
@@ -52,6 +75,8 @@ model = tf.keras.Sequential([
   tf.keras.layers.Dense(len(image_target), activation='softmax')
 ])
 
+# optimizer = tf.keras.optimizers.Adam(lr=0.001, beta_1=0.9, bete_2=0.999)
+
 model.compile(
     optimizer='adam',
     loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -65,15 +90,16 @@ history = model.fit(
     validation_data=(X_val, y_val),
     callbacks=[early_stopping_cb])
 
+model.evaluate(X_test, y_test)
+
 pd.DataFrame(history.history).plot(figsize=(8, 5))
 plt.grid(True)
 plt.gca().set_ylim(0, 1)
 plt.show()
 
-model.evaluate(X_test, y_test)
 model.summary()
 
-model.save('./saved_model.h5')
+# model.save('./saved_model.h5')
 
 
 prob = model.predict(X_test)
