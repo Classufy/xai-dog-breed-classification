@@ -5,39 +5,29 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from typing import DefaultDict
-import csv
 
-dir_path = './dog_data'
-image_dir = [f'{dir_path}/test_resize', f'{dir_path}/train_resize']
 
-dic = DefaultDict()
-image_target = set()
+data_path = './data'
 
-data_path = './dog_data'
-with open(f'{data_path}/labels.csv', 'r') as data:
-    for filename, breed in csv.reader(data):
-        dic[f'{filename}.jpg'] = breed
-        image_target.add(breed)
+target = [
+    'beagle', 'cocker_spaniel',
+    'maltese', 'pomeranian', 'poodle',
+    'samoyed', 'shih_tzu', 'white_terrier']
 
-target = list(image_target)
+image_dir = [f'{data_path}/{breed}' for breed in target]
 
-image_target = DefaultDict()
-
-for i, breed in enumerate(target):
-    image_target[breed] = i    
 
 X = []
 y = []
-dic
 
-jpg_list = glob.glob(f'{dir_path}/train_resized/*.jpg')
-for img in jpg_list:
-    fname = img.split('/')[-1]
-    img = Image.open(img)
-    img = img.convert('RGB')
-    X.append(np.asarray(img))
-    y.append(image_target[dic[fname]])
+for i, breed in enumerate(target):
+    jpg_list = glob.glob(f'{data_path}/{breed}/*.jpg')
+    for img in jpg_list:
+        img = Image.open(img)
+        img = img.resize((128, 128))
+        img = img.convert('RGB')
+        X.append(np.array(img))
+        y.append(i) 
 
 X = np.array(X)
 y = np.array(y)
@@ -45,12 +35,11 @@ y = np.array(y)
 X.shape
 y.shape
 
-df_y = pd.Series(y)
-df_y.value_counts() / len(df_y)
+unique, count = np.unique(y, return_counts=True)
+print(np.asarray((unique, count)))
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, random_state=1, test_size=0.2, stratify=y)
-
 
 # X_train = X_train.reshape(-1, 128 * 128 * 3)
 # X_test = X_test.reshape(-1, 128 * 128 * 3)
@@ -64,15 +53,15 @@ X_train, X_val, y_train, y_val = train_test_split(
     X_train, y_train, random_state=1, test_size=0.2)
 
 model = tf.keras.Sequential([
-  tf.keras.layers.Conv2D((128), (3, 3), activation='relu'),
-  tf.keras.layers.MaxPooling2D(),
-  tf.keras.layers.Conv2D((128), (3, 3), activation='relu'),
+  tf.keras.layers.Conv2D((128), (3, 3), activation='relu', input_shape=(128, 128, 3)),
   tf.keras.layers.MaxPooling2D(),
   tf.keras.layers.Conv2D((128), (3, 3), activation='relu'),
   tf.keras.layers.MaxPooling2D(),
   tf.keras.layers.Flatten(),
+  tf.keras.layers.Dropout(0.5),
   tf.keras.layers.Dense(128, activation='relu'),
-  tf.keras.layers.Dense(len(image_target), activation='softmax')
+  tf.keras.layers.Dropout(0.5),
+  tf.keras.layers.Dense(len(target), activation='softmax')
 ])
 
 # optimizer = tf.keras.optimizers.Adam(lr=0.001, beta_1=0.9, bete_2=0.999)
@@ -83,7 +72,7 @@ model.compile(
     metrics=['accuracy'])
 
 early_stopping_cb = tf.keras.callbacks.EarlyStopping(
-    patience=10, restore_best_weights=True)
+    patience=5, restore_best_weights=True)
 
 history = model.fit(
     X_train, y_train, epochs=100, 
@@ -97,37 +86,8 @@ plt.grid(True)
 plt.gca().set_ylim(0, 1)
 plt.show()
 
-model.summary()
 
-# model.save('./saved_model.h5')
+model.save('./saved_model.h5')
 
-
-prob = model.predict(X_test)
-y_pred = prob.argmax(axis=-1)
-
-### 결과 확인
-
-dic = {
-    '0-0':0,
-    '0-1':0,
-    '0-2':0,
-    '1-0':0,
-    '1-1':0,
-    '1-2':0,
-    '2-0':0,
-    '2-1':0,
-    '2-2':0
-}
-for i in range(len(y_pred)):
-    pred, ans = y_pred[i], y_test[i]
-    # if y_pred[i] != y_test[i]: 
-    #     wrong.append((image_target[pred], image_target[ans]))
-        # cnt[ans] += 1
-    dic[f'{pred}-{ans}'] += 1
-print('예측 결과 - 출력결과')
-for k in dic:
-    pred = int(k[0])
-    ans = int(k[2])
-    print(f'{image_target[pred]} - {image_target[ans]} : {dic[k]}')
 
 
