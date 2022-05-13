@@ -31,7 +31,7 @@ lime 0.2.0.1
 git clone https://github.com/Classufy/xai-dog-breed-classification
 ```
 2. Run 
-- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py) 학습 코드 실행
+- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py) 학습 코드 실행 or [Download this file](https://drive.google.com/file/d/1vpug2xGuRcLEhWfOuW02AHp-GImZJUBW/view?usp=sharing)
 ```
 python3 ./src/model.py
 ```
