@@ -64,6 +64,8 @@ model = tf.keras.Model(inputs=base_model.input, outputs=output)
 for layer in base_model.layers:
     layer.trainable = False
 
+len(model.trainable_weights)
+
 optimizer = tf.keras.optimizers.SGD(learning_rate=0.2, momentum=0.9, decay=0.01)
 early_stopping_cb = tf.keras.callbacks.EarlyStopping(
     patience=2, restore_best_weights=True)
@@ -80,8 +82,10 @@ history = model.fit(
     callbacks=[early_stopping_cb])
 
 # 마지막 5 레이어의 가중치만 열고 다시 학습
-for layer in base_model.layers[-5:-1]:
+for layer in base_model.layers[-5:]:
     layer.trainable = True
+
+len(model.trainable_weights)
 
 optimizer = tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, decay=0.001)
 
