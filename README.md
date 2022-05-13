@@ -21,14 +21,14 @@
 
 ## **데이터셋** 
 - beagle 1009장
-- cocker_spaniel 1294장
-- golden_retriever 1335장
+- cocker spaniel 1294장
+- golden retriever 1335장
 - maltese 770장
 - pekinese 1274장
 - pomeranian 936장
 - poodle 800장
 - samoyed 1325장
-- shih_tzu 1155장
-- white_terrier 736
+- shih-tzu 1155장
+- white terrier 736장
 
 _추가 예정_
