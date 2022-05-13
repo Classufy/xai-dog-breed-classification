@@ -22,6 +22,7 @@
 TensorFlow 2.8.0
 Python 3.9.10
 matplotlib 3.5.1
+lime 0.2.0.1
 ```
 
 ## **💡사용법**
