@@ -1,4 +1,4 @@
-# **XAI base Dog breed classification**   
+# **XAI based Dog breed classification**   
 
 ## **💡프로젝트 요약**
 반려견 품종을 구분하는 딥러닝 모델을 XAI를 이용하여 설명함으로써 분류의 근거를 얻는다. 이를 통해 펫샵과 같은 반려견 분양이 목적인 기관에서 품종에 대한 신뢰의 근거를 제시할 수 있게 된다.  
@@ -31,18 +31,23 @@ lime 0.2.0.1
 git clone https://github.com/Classufy/xai-dog-breed-classification
 ```
 2. Run 
-- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py) 학습 코드 실행 or [Download this file](https://drive.google.com/file/d/1vpug2xGuRcLEhWfOuW02AHp-GImZJUBW/view?usp=sharing)
+- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py) 학습 코드 실행 or [Download this file](https://drive.google.com/file/d/1vpug2xGuRcLEhWfOuW02AHp-GImZJUBW/view?usp=sharing) (last update: 22/05/13)
 ```
 python3 ./src/model.py
 ```
 - [src/lime.ipynb](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/lime.ipynb)에서 img_path를 원하는 이미지 경로로 변경 후 explain_image(img_path) 실행
 ```
-img_path = 'image_path' # 수정
+img_path = 'image_path' # 경로 수정
 explain_image(img_path)
 ```
 - 실행 결과
 <img width="350" alt="스크린샷 2022-05-13 오후 2 28 14" src="https://user-images.githubusercontent.com/66214527/168217081-a32d9dfc-4c32-42e2-9596-8f1f68b2f347.png">
 
+
+## **💡모델 성능** 
+- Test loss: 0.3756367564201355, 
+- Test accuracy 0.9022096991539001
+- last update: 22/05/13
 
 
 ## **데이터셋** 
