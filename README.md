@@ -25,8 +25,23 @@ matplotlib 3.5.1
 ```
 
 ## **💡사용법**
-- [Model 학습 코드](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py) 실행
-- [Lime 코드](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/lime.ipynb)에서 img_path를 원하는 이미지 경로로 변경 후 explain_image(img_path) 실행
+1. Clone this project
+```
+git clone https://github.com/Classufy/xai-dog-breed-classification
+```
+2. Run 
+- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py) 학습 코드 실행
+```
+python3 ./src/model.py
+```
+- [src/lime.ipynb](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/lime.ipynb)에서 img_path를 원하는 이미지 경로로 변경 후 explain_image(img_path) 실행
+```
+img_path = 'image_path' # 수정
+explain_image(img_path)
+```
+- 실행 결과
+<img width="350" alt="스크린샷 2022-05-13 오후 2 28 14" src="https://user-images.githubusercontent.com/66214527/168217081-a32d9dfc-4c32-42e2-9596-8f1f68b2f347.png">
+
 
 
 ## **데이터셋** 
