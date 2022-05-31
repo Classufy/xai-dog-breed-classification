@@ -41,8 +41,7 @@ img_path = 'image_path' # 경로 수정
 explain_image(img_path)
 ```
 - 실행 결과
-<img width="350" alt="스크린샷 2022-05-13 오후 2 28 14" src="https://user-images.githubusercontent.com/66214527/168217081-a32d9dfc-4c32-42e2-9596-8f1f68b2f347.png">
-
+![output](https://user-images.githubusercontent.com/66214527/171214856-f0522b0e-e14a-496c-8495-f1aeb67935a3.png)
 
 ## **💡모델 성능** 
 - Test loss: 0.3756367564201355, 
