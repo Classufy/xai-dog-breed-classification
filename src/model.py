@@ -81,13 +81,17 @@ history = model.fit(
     validation_data=(X_val, y_val),
     callbacks=[early_stopping_cb])
 
+model.save('./middle_model_lr0_2.h5')
+
+model = tf.keras.models.load_model('./middle_model_lr0_2.h5')
 # 마지막 5 레이어의 가중치만 열고 다시 학습
-for layer in base_model.layers[-5:]:
+for layer in base_model.layers[-3:]:
     layer.trainable = True
+
 
 len(model.trainable_weights)
 
-optimizer = tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, decay=0.001)
+optimizer = tf.keras.optimizers.SGD(learning_rate=0.1, momentum=0.9, decay=0.001)
 
 model.compile(
     optimizer=optimizer,
@@ -111,4 +115,4 @@ plt.show()
 model.save('./saved_model.h5')
 
 
-
+model = tf.keras.models.load_model('./saved_model.h5')

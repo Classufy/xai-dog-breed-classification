@@ -6,9 +6,9 @@ import os
 import glob
 
 target = [
-    'beagle', 'cocker_spaniel', 'dachshund',
-    'jindo', 'maltese', 'pomeranian', 'poodle',
-    'samoyed', 'shih_tzu', 'white_terrier']
+    'beagle', 'cocker_spaniel', 'maltese', 
+    'pomeranian', 'poodle', 'golden_retriever',
+    'samoyed', 'shih_tzu', 'white_terrier', 'pekinese']
 
 for breed in target:
     jpg_list = glob.glob(f'./data/{breed}/*.jpg')
