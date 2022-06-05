@@ -52,7 +52,8 @@ x_train, x_val, y_train, y_val = train_test_split(
     x_train, y_train, random_state=1, test_size=0.2)
 
 print('splited')
-df = pd.DataFrame(columns=['test_loss', 'test_accuracy', 'train_loss', 'train_accuracy'])
+df = pd.DataFrame(columns=['first_lr', 'second_lr', 'trainable_layers', 
+                            'test_loss', 'test_accuracy', 'train_loss', 'train_accuracy'])
 
 for first_lr in [0.4, 0.3, 0.2]:
     for second_lr in [0.1, 0.05, 0.01]:
@@ -119,6 +120,9 @@ for first_lr in [0.4, 0.3, 0.2]:
             print(f'{train_loss}, {train_accuracy}')
 
             append = pd.DataFrame({
+                'first_lr': [first_lr],
+                'second_lr': [second_lr],
+                'trainable_layers': [trainable_layers],
                 'test_loss': [test_loss], 
                 'test_accuracy': [test_accuracy],
                 'train_loss': [train_loss], 
