@@ -43,8 +43,7 @@ explain_image(img_path)
 - Test loss: 0.3581013083457947
 - Test accuracy: 0.9200264811515808
 - last update: 22/06/05
-
-_실험 결과 [/assets/output.csv](https://github.com/Classufy/xai-dog-breed-classification/blob/master/assets/output.csv)_
+- 실험 결과 : [/assets/output.csv](https://github.com/Classufy/xai-dog-breed-classification/blob/master/assets/output.csv)
 
 ## **데이터셋** 
 총 10종 선정
