@@ -31,7 +31,7 @@ lime 0.2.0.1
 git clone https://github.com/Classufy/xai-dog-breed-classification
 ```
 2. Run 
-- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py) 학습 코드 실행 or [Download this file](https://drive.google.com/file/d/1vpug2xGuRcLEhWfOuW02AHp-GImZJUBW/view?usp=sharing) (last update: 22/05/13)
+- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py)
 ```
 python3 ./src/model.py
 ```
@@ -44,21 +44,19 @@ explain_image(img_path)
 ![output](https://user-images.githubusercontent.com/66214527/171214856-f0522b0e-e14a-496c-8495-f1aeb67935a3.png)
 
 ## **💡모델 성능** 
-- Test loss: 0.3756367564201355, 
-- Test accuracy 0.9022096991539001
-- last update: 22/05/13
-
+- Test loss: 0.3581013083457947
+- Test accuracy: 0.9200264811515808
+- last update: 22/06/05
 
 ## **데이터셋** 
-- beagle 1009장
-- cocker spaniel 1294장
-- golden retriever 1335장
+총 10종 선정
+- beagle 762장
+- cocker spaniel 756장
+- golden retriever 756장
 - maltese 770장
-- pekinese 1274장
-- pomeranian 936장
-- poodle 800장
-- samoyed 1325장
-- shih-tzu 1155장
+- pekinese 746장
+- pomeranian 762장
+- poodle 756장
+- samoyed 756장
+- shih-tzu 761장
 - white terrier 736장
-
-_추가 예정_
