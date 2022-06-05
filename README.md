@@ -30,11 +30,7 @@ lime 0.2.0.1
 ```
 git clone https://github.com/Classufy/xai-dog-breed-classification
 ```
-2. Run 
-- [src/model.py](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/model.py)
-```
-python3 ./src/model.py
-```
+2. Run
 - [src/lime.ipynb](https://github.com/Classufy/xai-dog-breed-classification/blob/master/src/lime.ipynb)에서 img_path를 원하는 이미지 경로로 변경 후 explain_image(img_path) 실행
 ```
 img_path = 'image_path' # 경로 수정
@@ -47,6 +43,7 @@ explain_image(img_path)
 - Test loss: 0.3581013083457947
 - Test accuracy: 0.9200264811515808
 - last update: 22/06/05
+_실험 결과 [/assets/output.csv](https://github.com/Classufy/xai-dog-breed-classification/blob/master/assets/output.csv)_
 
 ## **데이터셋** 
 총 10종 선정
