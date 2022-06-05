@@ -40,6 +40,7 @@ explain_image(img_path)
 ![output](https://user-images.githubusercontent.com/66214527/171214856-f0522b0e-e14a-496c-8495-f1aeb67935a3.png)
 
 ## **💡모델 성능** 
+- Model : [/assets/best_model.h5](https://github.com/Classufy/xai-dog-breed-classification/blob/master/assets/best_model.h5)
 - Test loss: 0.3581013083457947
 - Test accuracy: 0.9200264811515808
 - last update: 22/06/05
