@@ -40,7 +40,7 @@ unique, count = np.unique(y, return_counts=True)
 print(np.asarray((unique, count)))
 
 x_train, x_test, y_train, y_test = train_test_split(
-    x, y, random_state=1, test_size=0.2, stratify=y)
+    x, y, random_state=1, test_size=0.4, stratify=y)
 
 
 x_train = x_train / 255
@@ -48,12 +48,16 @@ x_test = x_test / 255
 x_train.shape
 y_train.shape
 
-x_train, x_val, y_train, y_val = train_test_split(
-    x_train, y_train, random_state=1, test_size=0.2)
+x_test, x_val, y_test, y_val = train_test_split(
+    x_test, y_test, random_state=1, test_size=0.5, stratify=y_test)
 
 print('splited')
-df = pd.DataFrame(columns=['first_lr', 'second_lr', 'trainable_layers', 
-                            'test_loss', 'test_accuracy', 'train_loss', 'train_accuracy'])
+df = pd.DataFrame(
+    columns=[
+        'first_lr', 'second_lr', 'trainable_layers', 
+        'test_loss', 'test_accuracy', 
+        'train_loss', 'train_accuracy'
+    ])
 
 for first_lr in [0.4, 0.3, 0.2]:
     for second_lr in [0.1, 0.05, 0.01]:
