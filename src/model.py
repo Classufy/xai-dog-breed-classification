@@ -6,58 +6,72 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
+SEED = 13
 
-data_path = './data'
+target = {
+  'beagle': 0, 
+  'cocker_spaniel': 1, 
+  'golden_retriever': 2, 
+  'maltese': 3, 
+  'pekinese': 4,
+  'pomeranian': 5, 
+  'poodle': 6, 
+  'samoyed': 7, 
+  'shih_tzu': 8, 
+  'white_terrier': 9
+}
 
-target = [
-    'beagle', 'cocker_spaniel', 'golden_retriever',
-    'maltese', 'pekinese', 'pomeranian', 'poodle',
-    'samoyed', 'shih_tzu', 'white_terrier']
+train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+    rescale=1. / 255,
+    horizontal_flip=True
+)
 
-image_dir = [f'{data_path}/{breed}' for breed in target]
+train_generator = train_datagen.flow_from_directory(
+    './data/train',
+    target_size=(224, 224),
+    batch_size=128,
+    class_mode='sparse',
+    classes=target,
+    seed=SEED
+)
 
+val_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+    rescale=1. / 255,
+    horizontal_flip=True
+)
 
-x = []
-y = []
+val_generator = val_datagen.flow_from_directory(
+    './data/val',
+    target_size=(224, 224),
+    batch_size=128,
+    class_mode='sparse',
+    classes=target,
+    seed=SEED
+)
 
-for i, breed in enumerate(target):
-    jpg_list = glob.glob(f'{data_path}/{breed}/*.jpg')
-    for img in jpg_list:
-        img = Image.open(img)
-        img = img.resize((224, 224))
-        img = img.convert('RGB')
-        x.append(np.array(img))
-        y.append(i) 
-    print(f'{breed} * {len(jpg_list)} images are converted')
+test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+    rescale=1. / 255,
+    horizontal_flip=True
+)
 
-x = np.array(x)
-y = np.array(y)
+test_generator = test_datagen.flow_from_directory(
+    './data/test',
+    target_size=(224, 224),
+    class_mode='sparse',
+    classes=target,
+    seed=SEED
+)
 
-x.shape
-y.shape
-
-unique, count = np.unique(y, return_counts=True)
-print(np.asarray((unique, count)))
-
-x_train, x_test, y_train, y_test = train_test_split(
-    x, y, random_state=1, test_size=0.4, stratify=y)
-
-
-x_train = x_train / 255
-x_test = x_test / 255
-x_train.shape
-y_train.shape
-
-x_test, x_val, y_test, y_val = train_test_split(
-    x_test, y_test, random_state=1, test_size=0.5, stratify=y_test)
-
-print('splited')
 df = pd.DataFrame(
     columns=[
         'first_lr', 'second_lr', 'trainable_layers', 
         'test_loss', 'test_accuracy', 
         'train_loss', 'train_accuracy'
     ])
+
+best_model = None
+best_score = -1
+best_param = None
 
 for first_lr in [0.4, 0.3, 0.2]:
     for second_lr in [0.1, 0.05, 0.01]:
@@ -67,6 +81,7 @@ for first_lr in [0.4, 0.3, 0.2]:
 
             avg = tf.keras.layers.GlobalAveragePooling2D()(base_model.output)
             output = tf.keras.layers.Dense(len(target), activation='softmax')(avg)
+            
             model = tf.keras.Model(inputs=base_model.input, outputs=output)
 
             # 가중치들 다 고정하고 전이 학습
@@ -87,13 +102,10 @@ for first_lr in [0.4, 0.3, 0.2]:
 
 
             history = model.fit(
-                x_train, y_train, epochs=7,
-                validation_data=(x_val, y_val),
+                train_generator,
+                epochs=1,
+                validation_data=val_generator,
                 callbacks=[early_stopping_cb])
-
-            print('test loss / accuracy')
-            test_loss, test_accuracy = model.evaluate(x_test, y_test)
-            print(f'{test_loss}, {test_accuracy}')
 
             # 마지막 5 레이어의 가중치만 열고 다시 학습
             for layer in base_model.layers[-trainable_layers:]:
@@ -110,28 +122,33 @@ for first_lr in [0.4, 0.3, 0.2]:
                 metrics=['accuracy'])
 
             history = model.fit(
-                x_train, y_train, epochs=100,
-                validation_data=(x_val, y_val),
+                train_generator, 
+                epochs=1,
+                validation_data=val_generator,
                 callbacks=[early_stopping_cb])
 
 
-            print('test loss / accuracy')
-            test_loss, test_accuracy = model.evaluate(x_test, y_test)
-            print(f'{test_loss}, {test_accuracy}')
+            test_loss, test_accuracy = model.evaluate(test_generator)
+            print(f'test loss / accuracy : {test_loss}, {test_accuracy}')
             
-            print('train loss / accuracy')
-            train_loss, train_accuracy = model.evaluate(x_train, y_train)
-            print(f'{train_loss}, {train_accuracy}')
+            train_loss, train_accuracy = model.evaluate(train_generator)
 
-            append = pd.DataFrame({
+            param = {
                 'first_lr': [first_lr],
                 'second_lr': [second_lr],
                 'trainable_layers': [trainable_layers],
-                'test_loss': [test_loss], 
+                'test_loss': [test_loss],
                 'test_accuracy': [test_accuracy],
-                'train_loss': [train_loss], 
+                'train_loss': [train_loss],
                 'train_accuracy': [train_accuracy]
-            })
+            }
+
+            if best_score > test_accuracy:
+                best_model = model
+                best_score = test_accuracy
+                best_param = param
+
+            append = pd.DataFrame(param)
             df = pd.concat([df, append], ignore_index=True)
             
 
@@ -144,5 +161,5 @@ df.to_csv('../assets/output.csv')
 # plt.show()
 
 
-model.save('./assets/best_model.h5')
+best_model.save('./assets/best_model.h5')
 
