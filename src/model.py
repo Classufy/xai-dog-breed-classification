@@ -103,7 +103,7 @@ for first_lr in [0.4, 0.3, 0.2]:
 
             history = model.fit(
                 train_generator,
-                epochs=1,
+                epochs=10,
                 validation_data=val_generator,
                 callbacks=[early_stopping_cb])
 
@@ -123,7 +123,7 @@ for first_lr in [0.4, 0.3, 0.2]:
 
             history = model.fit(
                 train_generator, 
-                epochs=1,
+                epochs=1000,
                 validation_data=val_generator,
                 callbacks=[early_stopping_cb])
 
