@@ -1,10 +1,11 @@
 from PIL import Image
 import numpy as np
-import glob
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import pandas as pd
+from tqdm import tqdm
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 SEED = 13
 
@@ -21,145 +22,147 @@ target = {
   'white_terrier': 9
 }
 
-train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-    rescale=1. / 255,
-    horizontal_flip=True
-)
+def load_data():
+    train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+        rescale=1./255,
+        horizontal_flip=True,
+        rotation_range=40,
+        width_shift_range = 0.2,
+        height_shift_range = 0.2,
+        shear_range = 0.5,
+    )
 
-train_generator = train_datagen.flow_from_directory(
-    './data/train',
-    target_size=(224, 224),
-    batch_size=128,
-    class_mode='sparse',
-    classes=target,
-    seed=SEED
-)
+    train_generator = train_datagen.flow_from_directory(
+        './data/train',
+        target_size=(299, 299),
+        batch_size=128,
+        class_mode='sparse',
+        classes=target,
+        seed=SEED,
+        shuffle=True
+    )
 
-val_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-    rescale=1. / 255,
-    horizontal_flip=True
-)
+    val_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 
-val_generator = val_datagen.flow_from_directory(
-    './data/val',
-    target_size=(224, 224),
-    batch_size=128,
-    class_mode='sparse',
-    classes=target,
-    seed=SEED
-)
+    val_generator = val_datagen.flow_from_directory(
+        './data/val',
+        target_size=(299, 299),
+        batch_size=128,
+        class_mode='sparse',
+        classes=target,
+        seed=SEED,
+        shuffle=True
+    )
 
-test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-    rescale=1. / 255,
-    horizontal_flip=True
-)
+    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 
-test_generator = test_datagen.flow_from_directory(
-    './data/test',
-    target_size=(224, 224),
-    class_mode='sparse',
-    classes=target,
-    seed=SEED
-)
-
-df = pd.DataFrame(
-    columns=[
-        'first_lr', 'second_lr', 'trainable_layers', 
-        'test_loss', 'test_accuracy', 
-        'train_loss', 'train_accuracy'
-    ])
-
-best_model = None
-best_score = -1
-best_param = None
-
-for first_lr in [0.4, 0.3, 0.2]:
-    for second_lr in [0.1, 0.05, 0.01]:
-        for trainable_layers in [3, 5, 7]:
-            base_model = tf.keras.applications.xception.Xception(
-                weights='imagenet', include_top=False, input_shape=(224, 224, 3))
-
-            avg = tf.keras.layers.GlobalAveragePooling2D()(base_model.output)
-            output = tf.keras.layers.Dense(len(target), activation='softmax')(avg)
-            
-            model = tf.keras.Model(inputs=base_model.input, outputs=output)
-
-            # 가중치들 다 고정하고 전이 학습
-            for layer in base_model.layers:
-                layer.trainable = False
-
-            len(model.trainable_weights)
-
-            optimizer = tf.keras.optimizers.SGD(learning_rate=first_lr, momentum=0.9, decay=0.01)
-            early_stopping_cb = tf.keras.callbacks.EarlyStopping(
-                patience=2, restore_best_weights=True)
-
-            
-            model.compile(
-                optimizer=optimizer,
-                loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
-                metrics=['accuracy'])
+    test_generator = test_datagen.flow_from_directory(
+        './data/test',
+        target_size=(299, 299),
+        class_mode='sparse',
+        classes=target,
+        shuffle=False,
+    )
+    return train_generator, val_generator, test_generator
 
 
-            history = model.fit(
-                train_generator,
-                epochs=10,
-                validation_data=val_generator,
-                callbacks=[early_stopping_cb])
+def train_model(first_lr, second_lr, trainable_layers, train_generator, val_generator):
+    base_model = tf.keras.applications.xception.Xception(
+        weights='imagenet', include_top=False, input_shape=(299, 299, 3))
 
-            # 마지막 5 레이어의 가중치만 열고 다시 학습
-            for layer in base_model.layers[-trainable_layers:]:
-                layer.trainable = True
+    avg = tf.keras.layers.GlobalAveragePooling2D()(base_model.output)
+    output = tf.keras.layers.Dense(len(target), activation='softmax')(avg)
 
+    model = tf.keras.Model(inputs=base_model.input, outputs=output)
 
-            len(model.trainable_weights)
+    for layer in base_model.layers:
+        layer.trainable = False
 
-            optimizer = tf.keras.optimizers.SGD(learning_rate=second_lr, momentum=0.9, decay=0.001)
+    len(model.trainable_weights)
 
-            model.compile(
-                optimizer=optimizer,
-                loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
-                metrics=['accuracy'])
-
-            history = model.fit(
-                train_generator, 
-                epochs=1000,
-                validation_data=val_generator,
-                callbacks=[early_stopping_cb])
+    optimizer = tf.keras.optimizers.SGD(learning_rate=first_lr, momentum=0.9, decay=0.01)
+    early_stopping_cb = tf.keras.callbacks.EarlyStopping(
+        patience=2, restore_best_weights=True)
 
 
-            test_loss, test_accuracy = model.evaluate(test_generator)
-            print(f'test loss / accuracy : {test_loss}, {test_accuracy}')
-            
-            train_loss, train_accuracy = model.evaluate(train_generator)
-
-            param = {
-                'first_lr': [first_lr],
-                'second_lr': [second_lr],
-                'trainable_layers': [trainable_layers],
-                'test_loss': [test_loss],
-                'test_accuracy': [test_accuracy],
-                'train_loss': [train_loss],
-                'train_accuracy': [train_accuracy]
-            }
-
-            if best_score > test_accuracy:
-                best_model = model
-                best_score = test_accuracy
-                best_param = param
-
-            append = pd.DataFrame(param)
-            df = pd.concat([df, append], ignore_index=True)
-            
-
-        
-df.to_csv('../assets/output.csv')
-
-# pd.DataFrame(history.history).plot(figsize=(8, 5))
-# plt.grid(True)
-# plt.gca().set_ylim(0, 1)
-# plt.show()
+    model.compile(
+        optimizer=optimizer,
+        loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
+        metrics=['accuracy'])
 
 
-best_model.save('./assets/best_model.h5')
+    first_history = model.fit(
+        train_generator,
+        epochs=10,
+        validation_data=val_generator,
+        callbacks=[early_stopping_cb])
 
+    for layer in base_model.layers[-trainable_layers:]:
+        layer.trainable = True
+
+
+    len(model.trainable_weights)
+
+    optimizer = tf.keras.optimizers.SGD(learning_rate=second_lr, momentum=0.9, decay=0.001)
+
+    model.compile(
+        optimizer=optimizer,
+        loss=tf.losses.SparseCategoricalCrossentropy(from_logits=False),
+        metrics=['accuracy'])
+
+    second_history = model.fit(
+        train_generator, 
+        epochs=1000,
+        validation_data=val_generator,
+        callbacks=[early_stopping_cb])
+
+    return model, first_history, second_history
+
+def show_confusion_matrix_plot(y_true, y_pred, test_generator):
+    cm = confusion_matrix(y_true, y_pred)
+
+    length = 10 # two classes
+    plt.figure(figsize=(8, 8))
+    sns.heatmap(cm, annot=True, vmin=0, fmt='g', cmap='Blues', cbar=False)
+    classes=list(test_generator.class_indices.keys())
+    plt.xticks(np.arange(length)+.5, classes, rotation= 90)
+    plt.yticks(np.arange(length)+.5, classes, rotation=0)
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.title("Confusion Matrix")
+    plt.show()
+
+
+def main():
+    train_generator, val_generator, test_generator = load_data()
+    first_lr = 0.2
+    second_lr = 0.01
+    trainable_layers = 7
+    model, first_history, second_history = train_model(
+        first_lr, second_lr, trainable_layers, train_generator, val_generator)
+
+    pd.DataFrame(first_history.history).plot(figsize=(8, 5))
+    plt.grid(True)
+    plt.gca().set_ylim(0, 1)
+    plt.show()
+
+    pd.DataFrame(second_history.history).plot(figsize=(8, 5))
+    plt.grid(True)
+    plt.gca().set_ylim(0, 1)
+    plt.show()
+
+    model.save('./assets/best_model.h5')
+    
+
+    model = tf.keras.models.load_model('./assets/best_model.h5')
+
+    model.evaluate(test_generator)
+
+
+    pred = model.predict(test_generator, verbose=1)
+    y_pred = [np.argmax(p) for p in pred]
+    y_true = test_generator.classes
+
+    show_confusion_matrix_plot(y_true, y_pred, test_generator)
+
+if __name__ == "__main__": main()
