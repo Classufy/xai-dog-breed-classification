@@ -60,7 +60,4 @@ explain_image(img_path)
 - white terrier 736장
 
 ## Paper
-http://www.kkits.or.kr/bbs/board.php?bo_table=doc2&wr_id=1315
-
-## 개발기
-https://mangu.tistory.com/204
+[XAI 기반 반려견 품종 분류](http://www.riss.kr/search/detail/DetailView.do?p_mat_type=1a0202e37d52c72d&control_no=084eadfa92c7c31cc85d2949c297615a&keyword=%EB%B0%95%EB%AF%BC%EA%B7%9C%20xai)
