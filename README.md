@@ -51,3 +51,6 @@ explain_image(img_path)
 - samoyed 756장
 - shih-tzu 761장
 - white terrier 736장
+
+## Paper
+[XAI 기반 반려견 품종 분류](http://www.riss.kr/search/detail/DetailView.do?p_mat_type=1a0202e37d52c72d&control_no=084eadfa92c7c31cc85d2949c297615a&keyword=%EB%B0%95%EB%AF%BC%EA%B7%9C%20xai)
