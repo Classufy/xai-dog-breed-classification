@@ -58,3 +58,9 @@ explain_image(img_path)
 - samoyed 756장
 - shih-tzu 761장
 - white terrier 736장
+
+## Paper
+http://www.kkits.or.kr/bbs/board.php?bo_table=doc2&wr_id=1315
+
+## 개발기
+https://mangu.tistory.com/204
